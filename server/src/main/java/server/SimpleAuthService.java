@@ -102,18 +102,24 @@ public class SimpleAuthService implements AuthService {
             prStFindUser = connection.prepareStatement("SELECT * FROM users WHERE login = ?");
             prStFindUser.setString(1, login);
             ResultSet rs = prStFindUser.executeQuery();
-            if (rs.getString("login") != null) {
+            if (rs.getString("login").equals(login)) {
                 return false;
-            } else {
-                prStRegUser = connection.prepareStatement("INSERT INTO users (login, password, nick) VALUES (?,?,?)");
-                prStRegUser.setString(1, login);
-                prStRegUser.setString(2, password);
-                prStRegUser.setString(3, nickname);
-                prStRegUser.executeUpdate();
             }
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         } finally {
+            disconnect();
+        }
+        try {
+            connect();
+            prStRegUser = connection.prepareStatement("INSERT INTO users (login, password, nick) VALUES (?,?,?)");
+            prStRegUser.setString(1, login);
+            prStRegUser.setString(2, password);
+            prStRegUser.setString(3, nickname);
+            prStRegUser.executeUpdate();
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }finally {
             disconnect();
         }
         return true;
