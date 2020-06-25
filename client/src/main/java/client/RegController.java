@@ -7,10 +7,10 @@ public class RegController {
     public TextField loginField;
     public PasswordField passwordField;
     public TextField nickField;
-    Controller controller;
+    MsgController msgController;
 
 
     public void clickOk() {
-        controller.tryRegistration(loginField.getText().trim(), passwordField.getText().trim(), nickField.getText().trim());
+        msgController.tryRegistration(loginField.getText().trim(), passwordField.getText().trim(), nickField.getText().trim());
     }
 }

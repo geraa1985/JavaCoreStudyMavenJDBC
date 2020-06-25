@@ -12,8 +12,8 @@ public class ClientHandler {
     private DataInputStream in;
     private DataOutputStream out;
 
-    private String nick;
     private String login;
+    private String nick;
 
     public ClientHandler(Server server, Socket socket) {
         this.server = server;
@@ -35,6 +35,7 @@ public class ClientHandler {
                             String[] token = str.split(" ");
 
                             if (token.length < 4) {
+                                System.out.println("Норм");
                                 continue;
                             }
 
@@ -44,7 +45,7 @@ public class ClientHandler {
                             if (succeed) {
                                 sendMsg("Регистрация прошла успешно");
                             } else {
-                                sendMsg("Регистрация  не удалась. \n" +
+                                sendMsg("Регистрация не удалась.\n" +
                                         "Возможно логин уже занят, или данные содержат пробел");
                             }
                         }
@@ -68,6 +69,11 @@ public class ClientHandler {
                                     nick = newNick;
                                     server.subscribe(this);
                                     System.out.println("Клиент: " + nick + " подключился"+ socket.getRemoteSocketAddress());
+
+//                                    Вывод на экран клиента истории сообщений... Сейчас не нужная опция
+//                                    sendMsg(SQL.getHistory(nick));
+
+                                    server.systemMsg(nick + " подключился к беседе");
                                     break;
                                 } else {
                                     sendMsg("С этим логином уже прошли аутентификацию");
@@ -96,12 +102,30 @@ public class ClientHandler {
 
                                 server.privateMsg(this, token[1], token[2]);
                             }
+                            if (str.startsWith("/chnick")) {
+                                String[] token = str.split(" ", 2);
+                                if (token.length < 2) {
+                                    continue;
+                                }
+                                if (token[1].contains(" ")){
+                                    sendMsg("Ник не может содержать пробелов!");
+                                    continue;
+                                }
+                                if (server.getAuthService().setNick(token[1],nick)) {
+                                    server.systemMsg("Пользователь " + nick + " сменил имя на " + token[1]);
+                                    sendMsg("/chnick " + token[1]);
+                                    this.nick = token[1];
+                                    server.broadcastClientList();
+                                } else {
+                                    sendMsg("Ник " + token[1] + " уже существует!");
+                                }
+                            }
                         } else {
                             server.broadcastMsg(nick, str);
                         }
                     }
                 }
-                ///////
+                //Прошло 10 сек, если не авторизовался - гуд бай!)
                 catch (SocketTimeoutException e){
                     sendMsg("/end");
                 }
@@ -117,7 +141,6 @@ public class ClientHandler {
                     }
                 }
             }).start();
-
 
         } catch (IOException e) {
             e.printStackTrace();

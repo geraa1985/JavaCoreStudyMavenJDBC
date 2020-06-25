@@ -1,39 +1,43 @@
 package server;
 
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
 import java.util.Vector;
 
-
 public class Server {
-    private List<ClientHandler> clients;
-    private AuthService authService;
+    private final List<ClientHandler> clients;
+    private final AuthService authService;
 
     public Server() {
         clients = new Vector<>();
-        authService = new SimpleAuthService();
+
+        if (!SQL.connect()) {
+            throw new RuntimeException("Ошибка подключения к БД!!!");
+        }
+
+        authService = new DBAuthService();
+
+        final int PORT = 8120;
+
         ServerSocket server = null;
         Socket socket;
-
-        final int PORT = 8189;
 
         try {
             server = new ServerSocket(PORT);
             System.out.println("Сервер запущен!");
-
             while (true) {
                 socket = server.accept();
                 System.out.println("Клиент подключился ");
                 new ClientHandler(this, socket);
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
+            SQL.disconnect();
             try {
+                assert server != null;
                 server.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -41,45 +45,11 @@ public class Server {
         }
     }
 
-    public void broadcastMsg(String nick, String msg) {
-        for (ClientHandler c : clients) {
-            c.sendMsg(nick + ": " + msg);
-        }
-    }
-
-    public void privateMsg(ClientHandler sender, String receiver, String msg) {
-        String message = String.format("[ %s ] private [ %s ] : %s",
-                sender.getNick(), receiver, msg);
-
-        for (ClientHandler c : clients) {
-            if (c.getNick().equals(receiver)) {
-                c.sendMsg(message);
-                if (!sender.getNick().equals(receiver)) {
-                    sender.sendMsg(message);
-                }
-                return;
-            }
-        }
-
-        sender.sendMsg("not found user: " + receiver);
-    }
-
-
-    public void subscribe(ClientHandler clientHandler) {
-        clients.add(clientHandler);
-        broadcastClientList();
-    }
-
-    public void unsubscribe(ClientHandler clientHandler) {
-        clients.remove(clientHandler);
-        broadcastClientList();
-    }
-
     public AuthService getAuthService() {
         return authService;
     }
 
-    public boolean isLoginAuthorized(String login){
+    public boolean isLoginAuthorized(String login) {
         for (ClientHandler c : clients) {
             if (c.getLogin().equals(login)) {
                 return true;
@@ -88,7 +58,12 @@ public class Server {
         return false;
     }
 
-    private void broadcastClientList() {
+    public void subscribe(ClientHandler clientHandler) {
+        clients.add(clientHandler);
+        broadcastClientList();
+    }
+
+    public void broadcastClientList() {
         StringBuilder sb = new StringBuilder("/clientlist ");
 
         for (ClientHandler c : clients) {
@@ -100,4 +75,40 @@ public class Server {
             c.sendMsg(msg);
         }
     }
+
+    public void broadcastMsg(String nick, String msg) {
+        for (ClientHandler c : clients) {
+            c.sendMsg(nick + ": " + msg);
+        }
+        SQL.addToHistory(nick, "to All", msg);
+    }
+
+    public void systemMsg(String msg) {
+        for (ClientHandler c : clients) {
+            c.sendMsg("System: " + msg);
+        }
+    }
+
+    public void privateMsg(ClientHandler sender, String receiver, String msg) {
+        String message = String.format("[ %s ] private [ %s ] : %s", sender.getNick(), receiver, msg);
+
+        for (ClientHandler c : clients) {
+            if (c.getNick().equals(receiver)) {
+                c.sendMsg(message);
+                SQL.addToHistory(sender.getNick(),receiver,msg);
+                if (!sender.getNick().equals(receiver)) {
+                    sender.sendMsg(message);
+                }
+                return;
+            }
+        }
+
+        sender.sendMsg("not found user: " + receiver);
+    }
+
+    public void unsubscribe(ClientHandler clientHandler) {
+        clients.remove(clientHandler);
+        broadcastClientList();
+    }
+
 }
