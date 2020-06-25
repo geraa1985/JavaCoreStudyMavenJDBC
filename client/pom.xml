@@ -11,5 +11,15 @@
 
     <artifactId>client</artifactId>
 
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/commons-io/commons-io -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.7</version>
+        </dependency>
+
+    </dependencies>
+
 
 </project>

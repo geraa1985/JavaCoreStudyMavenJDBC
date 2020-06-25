@@ -70,7 +70,8 @@ public class ClientHandler {
                                     server.subscribe(this);
                                     System.out.println("Клиент: " + nick + " подключился"+ socket.getRemoteSocketAddress());
 
-                                    sendMsg(SQL.getHistory(nick));
+//                                    Вывод на экран клиента истории сообщений... Сейчас не нужная опция
+//                                    sendMsg(SQL.getHistory(nick));
 
                                     server.systemMsg(nick + " подключился к беседе");
                                     break;

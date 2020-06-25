@@ -48,6 +48,7 @@ public class MsgController implements Initializable {
 
     private boolean authenticated;
     private String nick;
+    private String login;
 
     public void setAuthenticated(boolean authenticated) {
         this.authenticated = authenticated;
@@ -104,6 +105,8 @@ public class MsgController implements Initializable {
                         if (str.startsWith("/authok ")) {
                             nick = str.split(" ")[1];
                             setAuthenticated(true);
+                            History.createFile(this.login);
+                            textArea.appendText(History.getHistory());
                             break;
                         }
 
@@ -139,6 +142,9 @@ public class MsgController implements Initializable {
 
                             } else {
                                 textArea.appendText(str + "\n");
+                                if (!str.startsWith("System:")){
+                                    History.setHistory(str + "\n");
+                                }
                             }
                         }
                     }
@@ -176,6 +182,7 @@ public class MsgController implements Initializable {
 
         try {
             out.writeUTF("/auth " + loginField.getText().trim() + " " + passwordField.getText().trim());
+            this.login = loginField.getText().trim();
             passwordField.clear();
         } catch (IOException e) {
             e.printStackTrace();
