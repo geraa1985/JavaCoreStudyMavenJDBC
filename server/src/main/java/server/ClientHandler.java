@@ -1,5 +1,8 @@
 package server;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -14,6 +17,8 @@ public class ClientHandler {
 
     private String login;
     private String nick;
+
+    private static final Logger LOG = LogManager.getLogger(ClientHandler.class);
 
     public ClientHandler(Server server, Socket socket) {
         this.server = server;
@@ -44,6 +49,7 @@ public class ClientHandler {
                                     .registration(token[1], token[2], token[3]);
                             if (succeed) {
                                 sendMsg("Регистрация прошла успешно");
+                                LOG.info("Пользователь " + token[2] + " зарегистрировался");
                             } else {
                                 sendMsg("Регистрация не удалась.\n" +
                                         "Возможно логин уже занят, или данные содержат пробел");
@@ -69,6 +75,7 @@ public class ClientHandler {
                                     nick = newNick;
                                     server.subscribe(this);
                                     System.out.println("Клиент: " + nick + " подключился"+ socket.getRemoteSocketAddress());
+                                    LOG.info("Клиент: " + nick + " подключился");
 
 //                                    Вывод на экран клиента истории сообщений... Сейчас не нужная опция
 //                                    sendMsg(SQL.getHistory(nick));
@@ -113,6 +120,7 @@ public class ClientHandler {
                                 }
                                 if (server.getAuthService().setNick(token[1],nick)) {
                                     server.systemMsg("Пользователь " + nick + " сменил имя на " + token[1]);
+                                    LOG.info("Пользователь " + nick + " сменил имя на " + token[1]);
                                     sendMsg("/chnick " + token[1]);
                                     this.nick = token[1];
                                     server.broadcastClientList();
@@ -134,6 +142,7 @@ public class ClientHandler {
                 } finally {
                     server.unsubscribe(this);
                     System.out.println("Клиент отключился");
+                    LOG.info("Клиент: " + nick + " отключился");
                     try {
                         socket.close();
                     } catch (IOException e) {

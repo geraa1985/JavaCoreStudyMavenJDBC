@@ -1,0 +1,13 @@
+2020-07-05 18:09:55,476 INFO s.Server [main] Сервер запущен! 
+2020-07-05 18:13:47,664 INFO s.Server [main] Сервер запущен! 
+2020-07-05 18:14:21,202 INFO s.Server [main] Клиент подключился 
+2020-07-05 18:14:21,207 INFO s.Server [Thread-1] Клиент: VVP подключился 
+2020-07-05 18:14:31,071 INFO s.Server [Thread-1] Клиент: VVP отключился 
+2020-07-05 18:35:34,458 INFO s.Server [main] Сервер запущен! 
+INFO  2020-07-05 18:42:58 [main] server.Server (Server.java:40) - Сервер запущен!
+INFO  2020-07-05 18:44:30 [main] server.Server (Server.java:40) - Сервер запущен!
+INFO  2020-07-05 18:45:06 [main] server.Server (Server.java:40) - Сервер запущен!
+INFO  2020-07-05 18:46:51 [main] server.Server (Server.java:40) - Сервер запущен!
+INFO  2020-07-05 18:47:14 [main] server.Server (Server.java:44) - Клиент подключился
+INFO  2020-07-05 18:47:14 [Thread-1] server.ClientHandler (ClientHandler.java:78) - Клиент: Brotan подключился
+INFO  2020-07-05 18:47:25 [Thread-1] server.ClientHandler (ClientHandler.java:145) - Клиент: Brotan отключился
