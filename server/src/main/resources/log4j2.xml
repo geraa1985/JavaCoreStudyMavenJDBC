@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <!-- Секция аппендеров -->
+    <Appenders>
+        <!-- Файловый аппендер -->
+        <File name="file" fileName="log.log">
+            <PatternLayout>
+                <Pattern>%-5p %d{yyyy-MM-dd HH:mm:ss} [%t] %C (%F:%L) - %m%n</Pattern>
+            </PatternLayout>
+        </File>
+        <!-- Файловый аппендер -->
+        <File name="file2" fileName="log2.log">
+            <!-- Фильтр по маркеру -->
+            <MarkerFilter marker="fileonly" onMatch="DENY" onMismatch="ACCEPT"/>
+            <PatternLayout>
+                <Pattern>%-5p %d{yyyy-MM-dd HH:mm:ss} [%t] %C (%F:%L) - %m%n</Pattern>
+            </PatternLayout>
+        </File>
+    </Appenders>
+    <!-- Секция логгеров -->
+    <Loggers>
+        <!-- Корневой логгер -->
+        <Root level="trace">
+            <AppenderRef ref="file" level="DEBUG"/>
+        </Root>
+        <!-- Логгер нашего класса Server -->
+        <Logger name="org.example" level="info" additivity="false">
+            <AppenderRef ref="file2" level="INFO"/>
+        </Logger>
+        <!-- Логгер нашего класса ClientHandler -->
+        <Logger name="org.example" level="info" additivity="false">
+            <AppenderRef ref="file2" level="INFO"/>
+        </Logger>
+    </Loggers>
+</Configuration>

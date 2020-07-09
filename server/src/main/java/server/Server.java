@@ -1,5 +1,9 @@
 package server;
 
+import com.sun.org.slf4j.internal.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -9,8 +13,14 @@ import java.util.Vector;
 public class Server {
     private final List<ClientHandler> clients;
     private final AuthService authService;
+    private static final Logger LOG = LogManager.getLogger(Server.class);
+
+    public static Logger getLOG() {
+        return LOG;
+    }
 
     public Server() {
+
         clients = new Vector<>();
 
         if (!SQL.connect()) {
@@ -27,13 +37,16 @@ public class Server {
         try {
             server = new ServerSocket(PORT);
             System.out.println("Сервер запущен!");
+            LOG.info("Сервер запущен!");
             while (true) {
                 socket = server.accept();
                 System.out.println("Клиент подключился ");
+                LOG.info("Клиент подключился");
                 new ClientHandler(this, socket);
             }
         } catch (IOException e) {
             e.printStackTrace();
+            LOG.error("Ошибка подключения");
         } finally {
             SQL.disconnect();
             try {
